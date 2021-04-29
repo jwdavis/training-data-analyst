@@ -26,6 +26,12 @@ done
 
 export KOPS_FEATURE_FLAGS=AlphaAllowGCE
 
+gcloud iam service-accounts create remote-sa
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+ --member="serviceAccount:remote-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
+ --role="roles/editor"
+
+
 kops create cluster \
 --name=$C2_FULLNAME \
 --zones=$KOPS_ZONES \
@@ -34,6 +40,7 @@ kops create cluster \
 --node-count=$NODE_COUNT \
 --node-size=$NODE_SIZE \
 --admin-access=$INSTANCE_CIDR \
+--gce-service-account "remote-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
 --yes
 
 for (( c=1; c<=30; c++))
